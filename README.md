@@ -1,3 +1,5 @@
+Ecoomporce pstman collection.json is used for testing end points
+
 <img width="1910" height="917" alt="H2DB" src="https://github.com/user-attachments/assets/7a186456-7809-4460-b50f-44f5a37012e1" />
 <img width="1482" height="637" alt="H2DB2" src="https://github.com/user-attachments/assets/0533f083-b05e-48b6-b057-4a528e41f518" />
 # E-Commerce Product Catalog Service
