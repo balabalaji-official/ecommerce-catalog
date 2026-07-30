@@ -1,0 +1,129 @@
+{
+  "info": {
+    "name": "Ecommerce Product Catalog",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "productId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Create Product",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Wireless Mouse\",\n  \"description\": \"Ergonomic wireless mouse\",\n  \"category\": \"Electronics\",\n  \"price\": 29.99,\n  \"stockQuantity\": 50,\n  \"sku\": \"SKU-DEMO-001\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/products", "host": ["{{baseUrl}}"], "path": ["api", "products"] }
+      }
+    },
+    {
+      "name": "Get Product By Id",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/api/products/{{productId}}", "host": ["{{baseUrl}}"], "path": ["api", "products", "{{productId}}"] }
+      }
+    },
+    {
+      "name": "Update Product",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Wireless Mouse\",\n  \"description\": \"Ergonomic wireless mouse - updated\",\n  \"category\": \"Electronics\",\n  \"price\": 24.99,\n  \"stockQuantity\": 45,\n  \"sku\": \"SKU-DEMO-001\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/products/{{productId}}", "host": ["{{baseUrl}}"], "path": ["api", "products", "{{productId}}"] }
+      }
+    },
+    {
+      "name": "Delete Product",
+      "request": {
+        "method": "DELETE",
+        "url": { "raw": "{{baseUrl}}/api/products/{{productId}}", "host": ["{{baseUrl}}"], "path": ["api", "products", "{{productId}}"] }
+      }
+    },
+    {
+      "name": "List Products (no filter)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/products?page=0&size=20",
+          "host": ["{{baseUrl}}"], "path": ["api", "products"],
+          "query": [
+            { "key": "page", "value": "0" },
+            { "key": "size", "value": "20" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "List Products - Filter by Category + Price Range",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/products?category=Electronics&minPrice=10&maxPrice=100&page=0&size=10&sortBy=price&sortDir=asc",
+          "host": ["{{baseUrl}}"], "path": ["api", "products"],
+          "query": [
+            { "key": "category", "value": "Electronics" },
+            { "key": "minPrice", "value": "10" },
+            { "key": "maxPrice", "value": "100" },
+            { "key": "page", "value": "0" },
+            { "key": "size", "value": "10" },
+            { "key": "sortBy", "value": "price" },
+            { "key": "sortDir", "value": "asc" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "List Products - Name Search",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/products?q=Item&page=0&size=10",
+          "host": ["{{baseUrl}}"], "path": ["api", "products"],
+          "query": [
+            { "key": "q", "value": "Item" },
+            { "key": "page", "value": "0" },
+            { "key": "size", "value": "10" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Error Demo - Get Nonexistent Product (404)",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/api/products/9999999", "host": ["{{baseUrl}}"], "path": ["api", "products", "9999999"] }
+      }
+    },
+    {
+      "name": "Error Demo - Create With Duplicate SKU (409)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Duplicate SKU Test\",\n  \"category\": \"Electronics\",\n  \"price\": 9.99,\n  \"stockQuantity\": 1,\n  \"sku\": \"SKU-0\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/products", "host": ["{{baseUrl}}"], "path": ["api", "products"] }
+      }
+    },
+    {
+      "name": "Error Demo - Validation Failure (400)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"\",\n  \"category\": \"\",\n  \"price\": -5,\n  \"stockQuantity\": -1,\n  \"sku\": \"\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/products", "host": ["{{baseUrl}}"], "path": ["api", "products"] }
+      }
+    }
+  ]
+}
