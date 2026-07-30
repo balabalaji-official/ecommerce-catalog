@@ -165,3 +165,37 @@ curl "http://localhost:8080/api/products?category=Electronics&minPrice=10&maxPri
   assessment; swapping to Postgres/MySQL in production is a config-only
   change (same JPA/Hibernate code), since JDBC URL/driver is the only thing
   that would change.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  Relational store with indexes → entity/Product.java. The @Table(indexes = {...}) annotation defines idx_product_category, idx_product_price, and the composite idx_product_category_price. application.yml configures the H2 in-memory datasource.
+
+Specification pattern for filters → repository/ProductSpecifications.java. Each filter is one static method (hasCategory, priceGreaterThanOrEqual, priceLessThanOrEqual, nameContains); buildFilter(...) composes them. Called from ProductServiceImpl.listProducts(), which passes the combined spec into productRepository.findAll(spec, pageable).
+
+Cache-aside + ReentrantReadWriteLock → service/cache/ProductCache.java. get() takes lock.readLock(); put()/evict() take lock.writeLock(). The cache-aside logic (check cache → miss → DB → populate) lives in ProductServiceImpl.getProduct().
+
+@Async cache maintenance → service/cache/ProductCacheUpdater.java, methods warm() and evict(), both annotated @Async("cacheTaskExecutor"). The thread pool itself is defined in config/AsyncConfig.java (cacheTaskExecutor() bean). Invoked from ProductServiceImpl inside createProduct(), updateProduct(), and deleteProduct().
+
+Optimistic locking → the @Version field on Product in entity/Product.java. It's enforced automatically by Hibernate whenever productRepository.save() is called from ProductServiceImpl.updateProduct() — no explicit code needed beyond the annotation; a version mismatch throws ObjectOptimisticLockingFailureException, caught in GlobalExceptionHandler.handleOptimisticLock().
+
+DTO + Mapper → dto/ProductRequest.java (inbound), dto/ProductResponse.java (outbound), mapper/ProductMapper.java (toEntity, applyUpdates, toResponse). Used at every entry/exit point in ProductServiceImpl.
+
+Centralized exception handling → exception/GlobalExceptionHandler.java (@RestControllerAdvice), reacting to exceptions thrown from ProductServiceImpl (ProductNotFoundException, DuplicateSkuException) and from Spring/Hibernate itself (validation, optimistic lock).
+
+Parallel seeder / identity-race fix → seed/DataSeeder.java, method run(). The parallel generation is IntStream.range(0, productCount).parallel().mapToObj(this::buildProduct); the single-threaded write is the one line right after it, productRepository.saveAll(products).
+
+Controller (entry point tying it all together) → controller/ProductController.java — five methods (create, getById, update, delete, list), each a thin layer that validates input and delegates straight into ProductServiceImpl.
